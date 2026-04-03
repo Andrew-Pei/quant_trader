@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 from typing import Optional, List
 from datetime import datetime
+import warnings
 
 try:
     import matplotlib.pyplot as plt
@@ -20,6 +21,29 @@ except ImportError:
 from backtest.engine import BacktestResult
 
 
+# 全局配置matplotlib中文字体
+if HAS_MATPLOTLIB:
+    # 禁用中文字符警告
+    warnings.filterwarnings('ignore', category=UserWarning, module='matplotlib')
+    
+    # 设置中文字体 - 优先使用Windows常见字体
+    import platform
+    if platform.system() == 'Windows':
+        # Windows系统中文字体
+        plt.rcParams['font.sans-serif'] = [
+            'Microsoft YaHei', 'SimHei', 'KaiTi', 'FangSong',
+            'STSong', 'STKaiti', 'STFangsong', 'Arial Unicode MS'
+        ]
+    else:
+        # 其他系统中文字体
+        plt.rcParams['font.sans-serif'] = [
+            'SimHei', 'Microsoft YaHei', 'WenQuanYi Micro Hei',
+            'WenQuanYi Zen Hei', 'Droid Sans Fallback'
+        ]
+
+    plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+
+
 class Visualizer:
     """可视化工具"""
 
@@ -27,28 +51,29 @@ class Visualizer:
         if not HAS_MATPLOTLIB:
             raise ImportError("请安装 matplotlib: pip install matplotlib")
 
-        # 设置中文字体 - 优先使用Windows常见字体
+        # 设置样式（在字体设置之后）
+        try:
+            plt.style.use(style)
+        except:
+            plt.style.use('seaborn-v0_8-whitegrid')
+
+        # 确保字体设置不被样式覆盖
+        self._ensure_chinese_font()
+
+    def _ensure_chinese_font(self):
+        """确保中文字体设置生效"""
         import platform
         if platform.system() == 'Windows':
-            # Windows系统中文字体
             plt.rcParams['font.sans-serif'] = [
                 'Microsoft YaHei', 'SimHei', 'KaiTi', 'FangSong',
                 'STSong', 'STKaiti', 'STFangsong', 'Arial Unicode MS'
             ]
         else:
-            # 其他系统中文字体
             plt.rcParams['font.sans-serif'] = [
                 'SimHei', 'Microsoft YaHei', 'WenQuanYi Micro Hei',
                 'WenQuanYi Zen Hei', 'Droid Sans Fallback'
             ]
-
-        plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
-
-        # 设置样式
-        try:
-            plt.style.use(style)
-        except:
-            plt.style.use('seaborn-v0_8-whitegrid')
+        plt.rcParams['axes.unicode_minus'] = False
     
     def plot_equity_curve(
         self,
@@ -58,12 +83,15 @@ class Visualizer:
     ):
         """
         绘制权益曲线
-        
+
         Args:
             result: 回测结果
             save_path: 保存路径
             show: 是否显示
         """
+        # 确保中文字体设置
+        self._ensure_chinese_font()
+
         fig, axes = plt.subplots(2, 1, figsize=(14, 10))
         
         df = result.equity_curve.copy()
@@ -127,18 +155,21 @@ class Visualizer:
     ):
         """
         绘制交易信号图
-        
+
         Args:
             result: 回测结果
             price_data: 价格数据
             save_path: 保存路径
             show: 是否显示
         """
+        # 确保中文字体设置
+        self._ensure_chinese_font()
+
         fig, ax = plt.subplots(figsize=(14, 8))
-        
+
         df = price_data.copy()
         df['date'] = pd.to_datetime(df['date'])
-        
+
         # 绘制价格线
         ax.plot(df['date'], df['close'], label='收盘价', linewidth=1.5, color='#34495E', alpha=0.8)
         
@@ -186,8 +217,11 @@ class Visualizer:
         """
         绘制业绩摘要图
         """
+        # 确保中文字体设置
+        self._ensure_chinese_font()
+
         fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-        
+
         # 收益率饼图
         ax1 = axes[0]
         colors = ['#27AE60', '#E74C3C']
@@ -241,10 +275,13 @@ class Visualizer:
         """
         比较多个策略的权益曲线
         """
+        # 确保中文字体设置
+        self._ensure_chinese_font()
+
         fig, ax = plt.subplots(figsize=(14, 8))
-        
+
         colors = ['#2E86AB', '#A23B72', '#F18F01', '#C73E1D', '#3B1F2B']
-        
+
         for i, result in enumerate(results):
             df = result.equity_curve.copy()
             df['date'] = pd.to_datetime(df['date'])
