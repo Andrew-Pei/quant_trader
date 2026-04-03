@@ -17,7 +17,7 @@ try:
 except ImportError:
     HAS_MATPLOTLIB = False
 
-from ..backtest.engine import BacktestResult
+from backtest.engine import BacktestResult
 
 
 class Visualizer:

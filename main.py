@@ -238,7 +238,7 @@ def main():
         return
     
     # 加载配置
-    config_path = os.path.join(os.path.dirname(__file__), '..', args.config)
+    config_path = os.path.join(os.path.dirname(__file__), args.config)
     config = load_config(config_path)
     
     print("\n" + "="*60)
