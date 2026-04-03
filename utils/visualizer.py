@@ -22,15 +22,28 @@ from backtest.engine import BacktestResult
 
 class Visualizer:
     """可视化工具"""
-    
+
     def __init__(self, style: str = 'seaborn-v0_8-whitegrid'):
         if not HAS_MATPLOTLIB:
             raise ImportError("请安装 matplotlib: pip install matplotlib")
-        
-        # 设置中文字体
-        plt.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'DejaVu Sans']
-        plt.rcParams['axes.unicode_minus'] = False
-        
+
+        # 设置中文字体 - 优先使用Windows常见字体
+        import platform
+        if platform.system() == 'Windows':
+            # Windows系统中文字体
+            plt.rcParams['font.sans-serif'] = [
+                'Microsoft YaHei', 'SimHei', 'KaiTi', 'FangSong',
+                'STSong', 'STKaiti', 'STFangsong', 'Arial Unicode MS'
+            ]
+        else:
+            # 其他系统中文字体
+            plt.rcParams['font.sans-serif'] = [
+                'SimHei', 'Microsoft YaHei', 'WenQuanYi Micro Hei',
+                'WenQuanYi Zen Hei', 'Droid Sans Fallback'
+            ]
+
+        plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+
         # 设置样式
         try:
             plt.style.use(style)
